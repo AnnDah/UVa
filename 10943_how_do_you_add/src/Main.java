@@ -1,44 +1,83 @@
-import java.io.ByteArrayInputStream;
-import java.util.Scanner;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 
 /**
  * Created by annikamagnusson on 16/10/15.
+ *
  */
 public class Main {
-    static Scanner in;
-    static String data;
+    private static BufferedReader in;
+    private static int[][] grid;
+    int k, n;
 
-    public static void main (String args[]) {
-        data = "20 2\n" +
-                "20 3\n" +
-                "0 0";
+    public static void main (String args[]) throws IOException {
+        in = new BufferedReader(new InputStreamReader(System.in));
 
-        System.setIn(new ByteArrayInputStream(data.getBytes()));
-        in = new Scanner(System.in);
+        Main main = new Main();
 
-        calc();
+        main.start();
+
+        in.close();
+        System.exit(0);
     }
 
-    static void calc() {
-        String output = "";
+    void start() throws IOException {
+        int maxN = 101;
+        int maxK = 101;
 
-        while (in.hasNext()) {
-            String line = in.nextLine();
-            if (line.equalsIgnoreCase("0 0")) {
-                System.out.println(output.substring(0, output.length() - 1));
-                return;
-            }
+        //create grid
+        grid = new int[maxN][maxK];
 
-            String[] numbers = line.split(" ");
+        String line = in.readLine();
 
-            int n = Integer.parseInt(numbers[0]);
-            int k = Integer.parseInt(numbers[1]);
+        String[] numbers = line.split(" ");
 
-            int ways = (int) Math.pow((n + 1), (k - 1));
+        n = Integer.parseInt(numbers[0]);
+        k = Integer.parseInt(numbers[1]);
 
-            output += ((Integer.toString(ways)) + "\n");
-
+        // If line equals 0 0 then program should end
+        if (n == 0 && k == 0) {
+            return;
         }
+
+        // fill grid
+        for (int i = 0; i < maxN; ++i) {
+            for (int j = 0; j < maxK; ++j) {
+                grid[i][j] = -1;
+            }
+        }
+
+        System.out.println(calc(0, n));
+        start();
+    }
+
+    private int calc(int i, int rem) throws IOException {
+        rem %= 1000000;
+
+        if (rem < 0) {
+            return 0;
+        }
+
+        if (i == k && rem == 0) {
+            return 1;
+        }
+
+        if (i == k) {
+            return 0;
+        }
+
+        if (grid[i][rem] != -1) {
+            return grid[i][rem];
+        }
+
+        int answer = 0;
+
+        for (int j = 0; j <= rem; ++j) {
+            answer += calc(i + 1, rem - j) % 1000000;
+        }
+
+        return grid[i][rem] = answer % 1000000;
 
     }
 
